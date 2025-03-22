@@ -1,9 +1,7 @@
 import gc
 import time
+from config import TIMEZONE_OFFSET, DEBUG
 
-from config import TIMEZONE_OFFSET
-
-DEBUG = True
 
 # Weekday and month names for HTTP date/time formatting; always English!
 _weekdayname = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
@@ -67,10 +65,7 @@ def urlencode(params):
         for char in string:
             c = ord(char)
             if (
-                (48 <= c <= 57)
-                or (65 <= c <= 90)
-                or (97 <= c <= 122)
-                or c in (45, 46, 95, 126)
+                (48 <= c <= 57) or (65 <= c <= 90) or (97 <= c <= 122) or c in (45, 46, 95, 126)
             ):  # 0-9, A-Z, a-z, -._~
                 result += char
             elif char == ' ':

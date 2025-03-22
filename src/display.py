@@ -1,4 +1,3 @@
-import gc
 import time
 from io import BytesIO
 
@@ -25,19 +24,8 @@ def display_time():
     y_time = dp.height // 2 - 12
 
     # 显示日期和时间
-    ed.text(
-        date_str,
-        x_date,
-        y_date,
-        bg_color=0xFFFF,
-        size=24,
-    )
-    ed.text(
-        time_str,
-        x_time,
-        y_time,
-        size=24,
-    )
+    ed.text(date_str, x_date, y_date, bg_color=0xFFFF, size=24)
+    ed.text(time_str, x_time, y_time, size=24)
 
 
 @timeit
@@ -51,8 +39,6 @@ def display_gif():
             b = BytesIO()
             b.write(f.read())
             img_io.append(b)
-    gc.collect()
-    # 遍历图片，模拟动画
     for f in img_io:
         f.seek(0)
         ed.pbm(f, 150, 185, invert=True)
@@ -65,26 +51,12 @@ def display_img():
 
 
 @timeit
-def display_th(dht):
+def display_th():
     if dht.measure():
         temp_str = "T:{:.1f}C".format(dht.temperature())
         humi_str = "H:{:.1f}%".format(dht.humidity())
-        ed.text(
-            temp_str,
-            40,
-            200,
-            color=ed.rgb565_color(255, 0, 0),
-            bg_color=0xFFFF,
-            size=24,
-        )
-        ed.text(
-            humi_str,
-            40,
-            224,
-            color=ed.rgb565_color(0, 255, 0),
-            bg_color=0xFFFF,
-            size=24,
-        )
+        ed.text(temp_str, 40, 200, color=ed.rgb565_color(255, 0, 0), bg_color=0xFFFF, size=24)
+        ed.text(humi_str, 40, 224, color=ed.rgb565_color(0, 255, 0), bg_color=0xFFFF, size=24)
 
 
 if __name__ == "__main__":
@@ -110,12 +82,7 @@ if __name__ == "__main__":
 
     y = 0
 
-    ed.text(
-        "Hello, 张三",
-        0,
-        0,
-        size=24,
-    )
+    ed.text("Hello, 张三", 0, 0, size=24)
 
     # ed.pbm("gif/img1.pbm", 80, 200,invert=True)
 
@@ -123,4 +90,4 @@ if __name__ == "__main__":
     display_time()
 
     display_gif()
-    display_th(dht)
+    display_th()

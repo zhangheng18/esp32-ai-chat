@@ -14,9 +14,12 @@ from config import (
     XF_APPID,
     BTN_PIN,
     ed,
+    WIFI_SSID,
+    WIFI_PASS,
 )
 from display import display_time, display_img, display_th
-from net import ntp_sync
+import net
+
 
 # 全局变量
 tim_ntp = Timer(0)
@@ -74,7 +77,11 @@ def main():
 
     display_img()
     tim_tm.init(period=1000, mode=Timer.PERIODIC, callback=lambda t: display_info())
-    tim_ntp.init(period=1000 * 60, mode=Timer.PERIODIC, callback=lambda t: ntp_sync())
+
+    # 每小时同步一次时间
+    tim_ntp.init(
+        period=1000 * 60 * 60, mode=Timer.PERIODIC, callback=lambda t: net.ntp_sync()
+    )
 
 
 if __name__ == "__main__":

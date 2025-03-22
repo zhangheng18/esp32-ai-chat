@@ -37,14 +37,14 @@ class DHT20:
     def temperature(self):
         return self._temperature
 
-        def __str__(self):
-            return f"Temperature: {self._temperature:.1f}°C, Humidity: {self._humidity:.1f}%"
+    def __str__(self):
+        return f"Temperature: {self._temperature:.1f}°C, Humidity: {self._humidity:.1f}%"
 
 
 if __name__ == "__main__":
     from machine import I2C, Pin
 
-    i2c = I2C(scl=Pin(22), sda=Pin(21))
+    i2c = I2C(0, sda=Pin(4), scl=Pin(5), freq=400000)
     dht = DHT20(i2c)
     if dht.measure():
         print(

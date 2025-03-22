@@ -1,17 +1,15 @@
 import time
+from machine import Pin, I2S, SPI, I2C
+import logging
+
 
 t = time.ticks_us()
 
-from machine import Pin, I2S, SPI, I2C
-
 # 控制 @timeit 是否显示函数运行时间
-DEBUG = True
+DEBUG = False
 
-import logging
 
-logging.basicConfig(
-    level=logging.INFO, format="[%(asctime)s] [%(levelname)s]:%(name)s:%(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="[%(asctime)s] [%(levelname)s]:%(message)s")
 
 
 # 讯飞API 服务
@@ -89,7 +87,7 @@ dp = st7789.ST7789(
     invert=True,
     rgb=True,
 )
-dp.back_light(90)  # 设置亮度为90
+dp.back_light(100)  # 设置亮度为90
 ed = EasyDisplay(
     dp,
     "RGB565",
@@ -111,4 +109,7 @@ import dht20
 i2c = I2C(0, sda=Pin(4), scl=Pin(5), freq=400000)
 dht = dht20.DHT20(i2c)
 
-print('load config', time.ticks_diff(time.ticks_us(), t) / 1000, ' ms')
+# log
+logging.info(
+    'load config done, cost time: {} ms'.format(time.ticks_diff(time.ticks_us(), t) / 1000)
+)

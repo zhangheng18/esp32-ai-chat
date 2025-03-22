@@ -149,21 +149,61 @@ class WebSocketClient:
         try:
             self.connect()
             logging.info("run start ....")
-            rms_cnt = 0
             chunk = bytearray(3200)
             status = STATUS_FIRST_FRAME
 
-            # 静默1.5 秒退出, 大概10个每s
-            for audio, rms in self.audio_generator(chunk, low_noise=10, max_noise=800):
-                if audio is None:
-                    rms_cnt += 1
-                    if rms_cnt >= 15:
+            # 静默检测参数
+            silence_count = 0
+            max_silence_count = 10  # 约1秒
+            min_speech_count = 3  # 至少检测到3帧有效语音才开始处理
+            speech_count = 0
+            is_recording = False
+
+            # 自适应噪音阈值
+            noise_floor = None
+            noise_adapt_rate = 0.95
+            speech_threshold_factor = 2.0  # 信噪比阈值因子
+
+            for audio, rms in self.audio_generator(chunk, low_noise=0, max_noise=10000):
+                # 初始化或更新噪音基准
+                if noise_floor is None:
+                    noise_floor = rms
+                elif rms < noise_floor * 1.5:  # 只用较低的RMS值更新噪音基准
+                    noise_floor = noise_floor * noise_adapt_rate + rms * (
+                        1 - noise_adapt_rate
+                    )
+
+                # 判断是否为语音
+                is_speech = (
+                    rms > noise_floor * speech_threshold_factor and rms > 8
+                )
+                logging.debug(
+                    f'RMS: {rms}, 噪音基准: {noise_floor:.1f}, 是语音: {is_speech}'
+                )
+
+                if is_speech:
+                    speech_count += 1
+                    silence_count = 0
+
+                    # 确认开始录音
+                    if speech_count >= min_speech_count:
+                        is_recording = True
+                else:
+                    silence_count += 1
+                    speech_count = 0
+
+                    # 如果已经开始录音，且静默足够长，则结束
+                    if is_recording and silence_count >= max_silence_count:
+                        logging.info(f'检测到持续静默{silence_count}帧，停止录音')
                         break
-                    logging.info(f'skip rms:{rms} cnt:{rms_cnt}')
+
+                # 如果未检测到语音或未开始录音，跳过处理
+                if not is_speech or not is_recording:
                     continue
-                rms_cnt = 0
+
+                # 处理有效音频帧
                 if status == STATUS_FIRST_FRAME:
-                    # 第一帧处理
+                    # 第一帧处理代码
                     # 发送第一帧音频，带business 参数
                     # appid 必须带上，只需第一帧发送
                     d = {

@@ -1,7 +1,6 @@
 """
    星火认知大模型HTTP调用文档 https://www.xfyun.cn/doc/spark/HTTP%E8%B0%83%E7%94%A8%E6%96%87%E6%A1%A3.html
    Spark Lite支持[搜索]内置插件； Spark Pro, Spark Max和Spark 4.0Ultra支持[搜索]、[天气]、[日期]、[诗词]、[字词]、[股票]六个内置插件；
-
 """
 
 import json

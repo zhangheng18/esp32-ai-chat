@@ -15,14 +15,7 @@ from config import XF_APPID, XF_APIKey, XF_APISecret, audio_out
 from utils import urlencode, format_date_time, timeit
 
 COMMON_ARGS = {"app_id": XF_APPID}
-BusinessArgs = {
-    "aue": "raw",
-    "auf": "audio/L16;rate=16000",
-    "vcn": "xiaoyan",
-    "tte": "utf8",
-    "volume": 8,
-    "speed": 60,
-}
+BusinessArgs = {"aue": "raw", "auf": "audio/L16;rate=16000", "vcn": "xiaoyan", "tte": "utf8", "volume": 8, "speed": 60}
 
 
 class Ws_Param:
@@ -103,15 +96,9 @@ class WebSocketClient:
         errMsg = message["message"]
 
         if code != 0:
-            logging.error(
-                "on_message:sid:%s call error:%s code is:%s  len:%s"
-                % (sid, errMsg, code)
-            )
+            logging.error("on_message:sid:%s call error:%s code is:%s  len:%s" % (sid, errMsg, code))
         else:
-            logging.info(
-                "on_message: sid:%s call error:%s code is:%s %s"
-                % (sid, errMsg, code, len(audio))
-            )
+            logging.info("on_message: sid:%s call error:%s code is:%s %s" % (sid, errMsg, code, len(audio)))
             # with open('demo.pcm', 'ab') as f:
             #   f.write(audio)
             self.audio_out.write(audio)
@@ -142,7 +129,7 @@ class WebSocketClient:
 if __name__ == "__main__":
     param = Ws_Param(XF_APPID, XF_APIKey, XF_APISecret)
     ws_url = param.create_url()
-    text = "我可以帮助您解答各种问题，例如：提供实时天气信息和预报。回答有关历史、科学、文化、技术等方面的问题。提供新闻和时事评论。帮助您查找附近的餐厅、商店和其他地点。提醒您即将到来的日程安排和事件。播放音乐、电影和电视节目。与您进行闲聊，提供娱乐和轻松的氛围。提供有关健康、锻炼和饮食的建议。帮助您学习新技能和提高现有技能。提供有关旅行目的地的信息和建议。请注意，我的功能可能因设备和应用程序的不同而有所不同。"
+    text = "我可以帮助您解答各种问题，例如：提供实时天气信息和预报。回答有关历史、科学、文化、技术等方面的问题。提供新闻和时事评论。与您进行闲聊，提供娱乐和轻松的氛围。帮助您学习新技能和提高现有技能。"
     client = WebSocketClient(ws_url, param, text=text, audio_out=audio_out)
     client.run()
-    print('done')
+    logging.info('done')
