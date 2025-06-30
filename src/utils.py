@@ -76,7 +76,7 @@ def urlencode(params):
                 result += "%" + "{:02X}".format(c)
         return result
 
-    return "&".join(f"{quote(str(k))}={quote(str(v))}" for k, v in params.items())
+    return "&".join("{}={}".format(quote(str(k)), quote(str(v))) for k, v in params.items())
 
 
 def timeit(func, *args, **kwargs):
@@ -101,3 +101,109 @@ def timeit(func, *args, **kwargs):
         return func(*args, **kwargs)
 
     return get_running_time
+
+
+# 测试代码
+if __name__ == "__main__":
+    import time as time_module
+    
+    print("=== 工具函数测试 ===")
+    
+    # 测试1：日期时间格式化测试
+    print("\n1. 日期时间格式化测试")
+    
+    # 测试format_date_time
+    print("测试format_date_time...")
+    current_timestamp = time_module.time()
+    formatted = format_date_time(current_timestamp)
+    print("当前时间戳: {}".format(current_timestamp))
+    print("格式化结果: {}".format(formatted))
+    
+    # 测试不同的时间戳
+    test_timestamps = [
+        0,  # 1970-01-01
+        1640995200,  # 2022-01-01
+        current_timestamp,  # 当前时间
+    ]
+    
+    for ts in test_timestamps:
+        result = format_date_time(ts)
+        print("时间戳 {} -> {}".format(ts, result))
+    
+    # 测试2：本地时间测试
+    print("\n2. 本地时间测试")
+    
+    # 测试get_local_time
+    print("测试get_local_time...")
+    local_tm = get_local_time()
+    print("本地时间: {}".format(local_tm))
+    print("年: {}, 月: {}, 日: {}".format(local_tm[0], local_tm[1], local_tm[2]))
+    print("时: {}, 分: {}, 秒: {}".format(local_tm[3], local_tm[4], local_tm[5]))
+    
+    # 测试format_datetime
+    print("\n测试format_datetime...")
+    date_str, time_str = format_datetime(local_tm)
+    print("日期字符串: {}".format(date_str))
+    print("时间字符串: {}".format(time_str))
+    
+    # 测试3：URL编码测试
+    print("\n3. URL编码测试")
+    
+    test_params = [
+        {"key": "value"},
+        {"name": "张三", "age": "25"},
+        {"url": "http://example.com", "query": "test&debug=1"},
+        {"special": "!@#$%^&*()"},
+        {"space": "hello world"},
+    ]
+    
+    for params in test_params:
+        encoded = urlencode(params)
+        print("参数: {} -> {}".format(params, encoded))
+    
+    # 测试4：timeit装饰器测试
+    print("\n4. timeit装饰器测试")
+    
+    # 创建测试函数
+    @timeit
+    def test_function(delay_ms):
+        """测试函数，延迟指定毫秒"""
+        start = time_module.ticks_ms()
+        while time_module.ticks_diff(time_module.ticks_ms(), start) < delay_ms:
+            pass
+        return "完成"
+    
+    # 测试不同的延迟
+    print("测试不同延迟的函数...")
+    DEBUG = True  # 确保启用调试输出
+    
+    for delay in [10, 50, 100]:
+        print("\n延迟 {}ms:".format(delay))
+        result = test_function(delay)
+        print("返回值: {}".format(result))
+    
+    # 测试DEBUG关闭时的行为
+    print("\n测试DEBUG=False时的行为...")
+    DEBUG = False
+    result = test_function(50)
+    print("返回值: {} (应该没有时间输出)".format(result))
+    DEBUG = True
+    
+    # 测试5：内存和垃圾回收测试
+    print("\n5. 内存测试")
+    
+    print("创建大对象前:")
+    print("空闲内存: {} KB".format(gc.mem_free() // 1024))
+    
+    # 创建一些大对象
+    big_list = [bytearray(1024) for _ in range(10)]  # 10KB
+    print("\n创建10KB对象后:")
+    print("空闲内存: {} KB".format(gc.mem_free() // 1024))
+    
+    # 删除并回收
+    del big_list
+    gc.collect()
+    print("\n垃圾回收后:")
+    print("空闲内存: {} KB".format(gc.mem_free() // 1024))
+    
+    print("\n工具函数测试完成")

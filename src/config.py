@@ -1,115 +1,112 @@
-import time
-from machine import Pin, I2S, SPI, I2C
+# ESP32 AI聊天项目配置文件
 import logging
 
+# =============================================================================
+# 基础配置
+# =============================================================================
 
-t = time.ticks_us()
+# 调试模式
+DEBUG = True
 
-# 控制 @timeit 是否显示函数运行时间
-DEBUG = False
+# 日志配置
+logging.basicConfig(
+    level=logging.INFO, 
+    format="[%(asctime)s] [%(levelname)s]:%(message)s"
+)
 
+# 时区配置（北京时间 UTC+8）
+TIMEZONE_OFFSET = 8 * 3600
 
-logging.basicConfig(level=logging.INFO, format="[%(asctime)s] [%(levelname)s]:%(message)s")
+# =============================================================================
+# 网络配置
+# =============================================================================
 
-
-# 讯飞API 服务
-XF_APPID = ""
-XF_APIKey = ""
-XF_APISecret = ""
-
-"""
-general指向Lite版本;
-generalv2指向V2.0版本;
-generalv3指向Pro版本;
-pro-128k指向Pro-128K版本;
-generalv3.5指向Max版本;
-4.0Ultra指向4.0 Ultra版本;
-"""
-XF_AI = "generalv3"
-
-
-# WIFI 名称 和 密码
+# WiFi配置
 WIFI_SSID = ""
 WIFI_PASS = ""
 
+# NTP服务器
+NTP_SERVER = 'time.windows.com'
 
-# 初始化麦克风
-in_sd_pin = Pin(39)
-in_sck_pin = Pin(40)
-in_ws_pin = Pin(41)
-audio_input = I2S(
-    0,
-    sck=in_sck_pin,
-    ws=in_ws_pin,
-    sd=in_sd_pin,
-    mode=I2S.RX,
-    bits=16,
-    format=I2S.MONO,
-    rate=16000,
-    ibuf=16000,
-)
+# =============================================================================
+# 硬件引脚配置
+# =============================================================================
 
+# 麦克风引脚
+MIC_SD_PIN = 39
+MIC_SCK_PIN = 40
+MIC_WS_PIN = 41
 
-# 初始化喇叭
-bclk_pin = Pin(18)  # 串行时钟输出
-lrc_pin = Pin(17)  # 字时钟
-din_pin = Pin(16)  # 串行数据输出初始化i2s
-audio_out = I2S(
-    1,
-    sck=bclk_pin,
-    ws=lrc_pin,
-    sd=din_pin,
-    mode=I2S.TX,
-    bits=16,
-    format=I2S.MONO,
-    rate=16000,
-    ibuf=16000 * 2,
-)
+# 扬声器引脚
+SPEAKER_BCLK_PIN = 18
+SPEAKER_LRC_PIN = 17
+SPEAKER_DIN_PIN = 16
 
+# 显示屏引脚
+DISPLAY_SCK_PIN = 12
+DISPLAY_MOSI_PIN = 11
+DISPLAY_CS_PIN = 10
+DISPLAY_DC_PIN = 13
+DISPLAY_RST_PIN = 14
+DISPLAY_BL_PIN = 9
 
-# 配置时区偏移量（例如，北京时间偏移量为8小时）
-TIMEZONE_OFFSET = 8 * 3600
+# 按钮引脚
+BUTTON_PIN = 1
 
-# 初始化屏幕
-import st7789_buf as st7789
-from easydisplay import EasyDisplay
+# DHT20引脚（可选）
+DHT_SDA_PIN = 4
+DHT_SCL_PIN = 5
 
-spi = SPI(1, baudrate=40000000, sck=Pin(12), mosi=Pin(11))
-dp = st7789.ST7789(
-    width=240,
-    height=320,
-    spi=spi,
-    cs=10,
-    dc=13,
-    res=14,
-    rotate=1,  # 旋转屏幕
-    bl=9,  # 调节背光亮度
-    invert=True,
-    rgb=True,
-)
-dp.back_light(100)  # 设置亮度为90
-ed = EasyDisplay(
-    dp,
-    "RGB565",
-    font="font/text_lite_24px_2312.v3.bmf",
-    show=True,
-    color=0x0000,
-    bg_color=0xFFFF,
-    clear=False,
-    auto_wrap=True,
-)
+# I2S配置
+I2S_CONFIG = {
+    "bits": 16,
+    "format": "MONO",
+    "rate": 16000,
+    "ibuf": 16000,
+}
 
-# 初始化按钮
-BTN_PIN = Pin(1, Pin.IN, Pin.PULL_UP)
+# 显示屏配置
+DISPLAY_CONFIG = {
+    "width": 240,
+    "height": 320,
+    "rotate": 1,
+    "invert": True,
+    "rgb": False,
+}
 
+# =============================================================================
+# 讯飞API配置
+# =============================================================================
 
-# DHT20 温湿度
-import dht20
+# 讯飞API配置
+XF_APPID = ""
+XF_APISecret = ""
+XF_APIKey = ""
 
-i2c = I2C(0, sda=Pin(4), scl=Pin(5), freq=400000)
-dht = dht20.DHT20(i2c)
+# AI模型版本
+# general指向Lite版本;
+# generalv2指向V2.0版本;
+# generalv3指向Pro版本;
+# pro-128k指向Pro-128K版本;
+# generalv3.5指向Max版本;
+# 4.0Ultra指向4.0 Ultra版本;
+XF_AI_MODEL = "generalv3"
 
-# log
-logging.info(
-    'load config done, cost time: {} ms'.format(time.ticks_diff(time.ticks_us(), t) / 1000)
-)
+# 语音识别配置
+IAT_CONFIG = {
+    "domain": "iat",
+    "language": "zh_cn",
+    "accent": "mandarin",
+    "vinfo": 0,
+    "vad_eos": 2000,
+    "nbest": 1,
+    "wbest": 1,
+}
+
+# TTS配置
+TTS_CONFIG = {
+    "voice": "xiaoyan",
+    "speed": 50,
+    "volume": 10,
+    "pitch": 50,
+} 

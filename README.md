@@ -2,15 +2,22 @@
 
 ## 简介
 
-本项目使用esp32-s3 基于 [MicroPython](https://docs.micropython.org/en/latest/esp32/general.html)
-接入讯飞星火大模型、实现语音对话、显示,灵感源自[Explorerlowi ESP32_AI_LLM](https://github.com/Explorerlowi/ESP32_AI_LLM )。
+本项目使用ESP32-S3基于 [MicroPython](https://docs.micropython.org/en/latest/esp32/general.html) 开发，集成讯飞星火大模型，实现智能语音对话和可视化显示。项目灵感源自 [Explorerlowi ESP32_AI_LLM](https://github.com/Explorerlowi/ESP32_AI_LLM)。
+
 
 ## 功能介绍
 
-* 时间显示
-* 湿度显示
-* 语音对话
-* 时间同步
+### 核心功能
+* **智能语音对话**: 集成讯飞星火大模型，支持自然语言问答
+* **语音识别**: 实时语音转文字，支持噪音检测
+* **语音合成**: 文字转语音播放，支持多种音色
+* **可视化界面**: 时间显示、聊天界面
+
+### 硬件功能
+* **环境监测**: DHT20温湿度传感器数据采集
+* **网络同步**: 自动WiFi连接和NTP时间同步  
+* **交互控制**: 触摸按钮触发语音对话
+
 
 ## 使用说明
 
@@ -25,19 +32,47 @@
 
 ### 项目部署
 
-* 开发环境: [thonny](https://thonny.org) + [MicroPython](http://micropython.86x.net/en/latet/esp32/tutorial/intro.html) v1.24.1 + esp32-s3N16R8 
-* 设备UART(COM)口连接电脑 
-* 刷入 [esp32-s3固件](https://micropython.org/download/ESP32_GENERIC_S3/)
-    * [ESP32_GENERIC_S3_OCT v1.24.1](https://micropython.org/resources/firmware/ESP32_GENERIC_S3-SPIRAM_OCT-20241129-v1.24.1.bin)
-* 设备USB口连接到电脑, 将项目下src目录的所有文件下载到设备 / 目录
-* 修改 config.py： 填写 XF_APPID 、WIFI_SSID 等配置
-* 运行 
-  * display.py 测试屏幕显示
-  * net.py 测试网络连接
-  * xunfei_ai.py 测试ai问答接口
-  * xunfei_tts.py 测试扬声器
-  * xunfei_iat.py 测试麦克风
-* 开启自启： 运行 main_ai.py 测试完整功能，功能正常可改名为main.py 实现开机自启
+#### 开发环境要求
+* 开发环境: [thonny](https://thonny.org) + [MicroPython](http://micropython.86x.net/en/latet/esp32/tutorial/intro.html) v1.25.0 + esp32-s3N16R8 
+* 硬件连接: 设备UART(COM)口连接电脑进进行固件刷入，USB口用于开发调试上传代码
+* 固件刷入: [esp32-s3固件](https://micropython.org/download/ESP32_GENERIC_S3/)
+    * 推荐: [ESP32_GENERIC_S3_OCT v1.25.0](https://micropython.org/resources/firmware/ESP32_GENERIC_S3-SPIRAM_OCT-20250415-v1.25.0.bin)
+
+#### 部署步骤
+
+1. **上传项目文件**
+   * 将整个 `src/` 目录的所有文件和文件夹上传到 ESP32 设备的根目录 `/`
+   * 保持目录结构完整，包括 `hardware/`、`services/`、`ui/` 等子目录
+
+2. **配置文件修改**
+   * 编辑 `config.py` 文件，填写以下必要配置：
+     - `WIFI_SSID` 和 `WIFI_PASS`: WiFi网络配置
+     - `XF_APPID`、`XF_APISecret`、`XF_APIKey`: 讯飞API密钥
+     - 根据实际硬件连接调整引脚配置（如有必要）
+
+3. **模块功能测试**
+   * 显示功能测试: 运行 `hardware/_display.py`
+   * 声音录制播放测试： 运行 `hardware/audio.py`
+   * 按钮功能测试：运行 `hardware/_button.py`
+   * 网络连接测试: 运行 `services/network.py`  
+   * AI对话测试: 运行 `services/ai_chat.py`
+   * 语音合成测试: 运行 `services/text_to_speech.py`
+   * 语音识别测试: 运行 `services/speech_recognition.py`
+   * UI界面测试: 运行 `ui/views.py`
+
+4. **完整功能测试**
+   * 运行 `main_ai.py` 测试完整的语音对话功能
+   * 通过按钮触发测试语音识别→AI问答→语音播放的完整流程
+
+5. **开启自启动**
+   * 功能测试正常后，将 `main_ai.py` 重命名为 `main.py` 实现开机自启
+
+#### 故障排除
+
+* **网络连接问题**: 检查WiFi配置，确认网络畅通
+* **API调用失败**: 验证讯飞API密钥配置正确，账户余额充足
+* **硬件错误**: 检查引脚连接，确认硬件供电正常
+* **内存不足**: 设备重启，运行 `import gc; gc.collect()` 清理内存
 
 ### 硬件清单
 
@@ -103,19 +138,53 @@
 
 
 ### 项目结构
-* src
-  * lib: 依赖库
-  * font： 字体文件
-  * gif： 图片文件
-  * config.py: 配置文件
-  * main_ai.py: 主程序入口
-  * net.py: 网络连接 ntp同步
-  * boot.py: 开机自联网
-  * display.py: 屏幕显示
-  * utils.py: 工具函数
-  * xunfei_ai.py: 讯飞大模型调用
-  * xunfei_iat.py: 讯飞语音听写
-  * xunfei_tts.py: 讯飞语音合成
+
+```
+src/
+├── hardware/                    # 硬件抽象层
+│   ├── __init__.py             # 硬件层模块导出
+│   ├── audio.py                # 音频输入输出管理 (I2S麦克风/扬声器)
+│   ├── _button.py              # 按钮交互管理 (触摸开关)
+│   └── _display.py             # 显示屏控制 (ST7789 TFT屏幕)
+│
+├── services/                    # 服务层
+│   ├── __init__.py             # 服务层模块导出
+│   ├── websocket_base.py       # WebSocket基础类
+│   ├── network.py              # 网络连接管理
+│   ├── ai_chat.py              # AI对话服务 (讯飞星火大模型)
+│   ├── speech_recognition.py   # 语音识别服务 (讯飞语音听写)
+│   └── text_to_speech.py       # 语音合成服务 (讯飞语音合成)
+│
+├── ui/                         # UI层
+│   ├── __init__.py             # UI层模块导出
+│   └── views.py                # 视图组件 (时间/图片/聊天界面)
+│
+├── lib/                        # 第三方库和自定义模块
+│   ├── ws/                     # WebSocket客户端实现
+│   │   ├── client.py           # WebSocket客户端
+│   │   └── protocol.py         # WebSocket协议处理
+│   ├── easydisplay.py          # 简化的显示库
+│   ├── easybutton.py           # 简化的按钮库
+│   ├── st7789_buf.py           # ST7789屏幕驱动
+│   ├── dht20.py                # DHT20温湿度传感器驱动
+│   ├── base64.mpy              # Base64编码库
+│   ├── hmac.mpy                # HMAC加密库
+│   ├── logging.mpy             # 日志功能库
+│   └── time.mpy                # 时间函数库
+│
+├── font/                       # 字体文件
+│   ├── README.md               # 字体说明文档
+│   └── text_lite_24px_2312.v3.bmf  # 中文字体文件
+│
+├── gif/                        # 图片资源文件 (PBM格式)
+│   ├── README.md               # 图片说明
+│   └── img1.pbm ~ img4.pbm     # 动画帧图片
+│
+├── config.py                   # 核心配置文件 (API密钥/WiFi/硬件引脚)
+├── main_ai.py                  # 主程序入口 (协调各层模块工作)
+├── boot.py                     # 系统启动文件 (开机自联网)
+└── utils.py                    # 通用工具函数 (时间格式化/性能测试)
+```
 
 ## 成品参考
 
@@ -124,11 +193,11 @@
 
 ## 参考
 
-* https://github.com/Explorerlowi/ESP32_AI_LLM
-* https://github.com/danni/uwebsockets
-* https://github.com/micropython/micropython-lib
-* https://github.com/funnygeeker/micropython-easydisplay
-* https://github.com/AntonVanke/MicroPython-uFont
+* [danni/uwebsockets](https://github.com/danni/uwebsockets) - WebSocket客户端实现
+* [micropython/micropython-lib](https://github.com/micropython/micropython-lib) - MicroPython标准库
+* [funnygeeker/micropython-easydisplay](https://github.com/funnygeeker/micropython-easydisplay) - 简化显示库
+* [AntonVanke/MicroPython-uFont](https://github.com/AntonVanke/MicroPython-uFont) - 中文字体支持
+
 
 ## 其他
 
